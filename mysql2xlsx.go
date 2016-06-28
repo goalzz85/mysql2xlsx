@@ -103,7 +103,7 @@ func saveExcelByRows(excelAbsFilePath string, rows *sql.Rows) error {
 	}
 
 	scanArgs := make([]interface{}, columnLen)
-	values := make([]string, columnLen)
+	values := make([][]byte, columnLen)
 	for i := range values {
 		scanArgs[i] = &values[i]
 	}
@@ -112,7 +112,7 @@ func saveExcelByRows(excelAbsFilePath string, rows *sql.Rows) error {
 		row := sheet.AddRow()
 		for _, v := range values {
 			cell := row.AddCell()
-			cell.Value = v
+			cell.Value = string(v)
 		}
 	}
 
