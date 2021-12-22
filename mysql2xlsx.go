@@ -13,7 +13,7 @@ import (
 	"github.com/tealeg/xlsx"
 )
 
-var mysqlHost, mysqlPort, mysqlUser, mysqlPassword, mysqlDb *string
+var mysqlHost, mysqlPort, mysqlUser, mysqlPassword, mysqlDb, mysqlSql *string
 var excelFilePath *string
 var db *sql.DB
 
@@ -23,6 +23,7 @@ func main() {
 	mysqlDb = flag.String("d", "", "mysql database name")
 	mysqlUser = flag.String("u", "", "mysql user name")
 	mysqlPassword = flag.String("p", "", "mysql password")
+	mysqlSql = flag.String("s", "", "mysql sql statement")
 	excelFilePath = flag.String("t", "", "export xlsx path")
 
 	flag.Parse()
@@ -39,20 +40,26 @@ func main() {
 	}
 	reader := bufio.NewReader(os.Stdin)
 
-	fmt.Printf("Enter database password:\n")
-	*mysqlPassword, _ = reader.ReadString('\n')
-	*mysqlPassword = strings.TrimSpace(*mysqlPassword)
+	if *mysqlPassword == "" {
+		fmt.Printf("Enter database password:\n")
+		*mysqlPassword, _ = reader.ReadString('\n')
+		*mysqlPassword = strings.TrimSpace(*mysqlPassword)
+	}
 
 	//获取Sql语句
 	var sqlStr string
-	fmt.Printf("Please Input SQL:\n")
-	for {
-		tmpSql, _ := reader.ReadString('\n')
-		sqlStr = sqlStr + tmpSql
-		tmpSql = strings.TrimSpace(tmpSql)
-		if tmpSql[len(tmpSql)-1] == ';' {
-			break
+	if *mysqlSql == "" {
+		fmt.Printf("Please Input SQL:\n")
+		for {
+			tmpSql, _ := reader.ReadString('\n')
+			sqlStr = sqlStr + tmpSql
+			tmpSql = strings.TrimSpace(tmpSql)
+			if tmpSql[len(tmpSql)-1] == ';' {
+				break
+			}
 		}
+	} else {
+		sqlStr = *mysqlSql
 	}
 
 	//获取sql连接
